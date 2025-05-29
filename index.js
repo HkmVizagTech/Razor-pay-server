@@ -1,0 +1,173 @@
+// require("dotenv").config();
+// const express = require("express");
+// const Razorpay = require("razorpay");
+// const crypto = require("crypto");
+// const cors = require("cors");
+
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+
+// const razorpayInstance = new Razorpay({
+//   key_id: process.env.RAZORPAY_KEY_ID,
+//   key_secret: process.env.RAZORPAY_KEY_SECRET,
+// });
+
+// // Create Order Route
+// app.post("/create-order", async (req, res) => {
+//   const options = {
+//     amount: req.body.amount, // amount in paise
+//     currency: "INR",
+//     receipt: "receipt#1",
+//   };
+//   try {
+//     const order = await razorpayInstance.orders.create(options);
+//     res.json(order);
+//   } catch (error) {
+//     console.error("Error creating order:", error);
+//     // res.status(500).send("Internal Server Error");
+//     res.status(500).json({ status: "error", message: "Internal Server Error" });
+
+//   }
+// });
+
+// // Verify Payment Route
+// app.post("/verify-payment", (req, res) => {
+//   // const { orderId, paymentId, signature } = req.body;
+//   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+//   const generatedSignature = crypto
+//     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+//     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+//     .digest("hex");
+
+//   if (generatedSignature === razorpay_signature) {
+//     res.json({ status: "success", message: "Payment verified successfully" });
+//   } else {
+//     console.log("Verification Failed");
+//     res.status(400).json({ status: "failure", message: "Payment verification failed" });
+//   }
+// });
+
+
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+require("dotenv").config(); // Load .env
+
+const express = require("express");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const dbConnect = require("./config/db"); // Import your database connection function
+const Payment = require("./models/payment");
+const gupshup = require('@api/gupshup');
+ // Import your Payment model
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+dbConnect();
+// Route to create order
+app.post("/create-order", async (req, res) => {
+  console.log(process.env.RAZORPAY_KEY_ID, process.env.RAZORPAY_KEY_SECRET);
+  
+  const { amount } = req.body;
+
+  const options = {
+    amount: amount, // in paise (₹99 = 9900 paise)
+    currency: "INR",
+    receipt: "receipt#1",
+  };
+
+  try {
+    const order = await razorpay.orders.create(options);
+    res.json(order);
+  } catch (err) {
+    console.error("Error creating order:", err);
+    res.status(500).json({ status: "error", message: "Failed to create order" });
+  }
+});
+
+// Route to verify payment
+
+app.post("/verify-payment", async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    formData,
+  } = req.body
+
+  // Step 1: Verify Signature
+  const crypto = require("crypto")
+  const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+  hmac.update(razorpay_order_id + "|" + razorpay_payment_id)
+  const generated_signature = hmac.digest("hex")
+
+  if (generated_signature !== razorpay_signature) {
+    return res.status(400).json({ status: "fail", message: "Payment verification failed" })
+  }
+
+  try {
+    // Step 2: Save user + payment details in DB
+    const normalizedNumber = "91"+formData.whatsappNumber
+    const newPayment = new Payment({
+      name: formData.name,
+      whatsappNumber: normalizedNumber,
+      email: formData.email,
+      area: formData.areaOfResidence,
+      collegeName: formData.collegeName,
+      courseAndYear: formData.courseYear,
+      gender: formData.gender,
+      dayScholarOrHostler: formData.dayScholarHostler === "dayscholar" ? "Day Scholar" : "Hostler",
+      amount: parseFloat(formData.amount),
+
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      paymentSuccess: true,
+    })
+
+    await newPayment.save()
+        gupshup.sendingTextTemplate({
+    template: {
+      id: 'b36fa10c-2910-4ce0-8fac-e63f807e4929',
+      //f69893f8-f84f-4c37-a744-c8f6713afce5
+      params: [newPayment.name, newPayment.amount]
+    },
+    'src.name': 'Production',  // Replace with actual App Name (not App ID)
+    destination: normalizedNumber,
+    source: '917075176108',//917075176108
+    // postbackTexts: [
+    //   { index: 1, text: "hello " }
+    // ]
+  }, {
+    apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+  })
+  .then(({ data }) => {
+    console.log(data);
+    res.status(200);
+  })
+  .catch(err => {
+    console.error(err.response?.data || err);
+    res.status(500);
+  });
+
+    res.json({ status: "success", message: "Payment verified and user registered" })
+  } catch (err) {
+    console.error("Error saving payment to DB:", err)
+    res.status(500).json({ status: "error", message: "User registration failed" })
+  }
+})
+mongoose.connection.once("open",()=>{
+  console.log("Connected to MongoDB");
+})
+app.listen(5000, () => {
+  console.log("Server is running on http://localhost:5000");
+});
