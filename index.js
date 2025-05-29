@@ -137,7 +137,7 @@ app.post("/verify-payment", async (req, res) => {
     await newPayment.save()
         gupshup.sendingTextTemplate({
     template: {
-      id: 'b36fa10c-2910-4ce0-8fac-e63f807e4929',
+      id: 'f7a7616e-a87a-4be8-ba6e-27a827910031',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
       params: [newPayment.name, newPayment.amount]
     },
