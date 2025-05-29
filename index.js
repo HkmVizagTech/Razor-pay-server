@@ -65,7 +65,10 @@ const gupshup = require('@api/gupshup');
  // Import your Payment model
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000","https://gita-sparks-git-main-sivabalajieevana-12s-projects.vercel.app"], // Adjust this to your frontend URL
+  methods: ["GET", "POST"],
+}));
 app.use(express.json());
 
 const razorpay = new Razorpay({
