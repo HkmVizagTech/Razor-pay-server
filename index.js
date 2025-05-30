@@ -66,7 +66,7 @@ const gupshup = require('@api/gupshup');
 
 const app = express();
 app.use(cors({
-  origin: ["http://localhost:3000","https://gita-sparks-git-main-sivabalajieevana-12s-projects.vercel.app"], // Adjust this to your frontend URL
+  origin: ["http://localhost:3000","https://gita-sparks-git-main-sivabalajieevana-12s-projects.vercel.app","https://gita-sparks.vercel.app"], // Adjust this to your frontend URL
   methods: ["GET", "POST"],
 }));
 app.use(express.json());
@@ -138,9 +138,9 @@ app.post("/verify-payment", async (req, res) => {
     })
 
     await newPayment.save()
-        gupshup.sendingTextTemplate({
+        gupshup.sendingTextTemplatsse({
     template: {
-      id: 'f7a7616e-a87a-4be8-ba6e-27a827910031',
+      id: '576a5d73-0b6e-4c23-aabf-a7031362a318',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
       params: [newPayment.name, newPayment.amount]
     },
