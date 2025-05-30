@@ -138,11 +138,11 @@ app.post("/verify-payment", async (req, res) => {
     })
 
     await newPayment.save()
-        gupshup.sendingTextTemplatsse({
+        gupshup.sendingTextTemplate({
     template: {
       id: '576a5d73-0b6e-4c23-aabf-a7031362a318',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: [newPayment.name, newPayment.amount]
+      params: [newPayment.name]
     },
     'src.name': 'Production',  // Replace with actual App Name (not App ID)
     destination: normalizedNumber,
