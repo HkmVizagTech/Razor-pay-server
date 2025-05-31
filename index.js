@@ -62,6 +62,7 @@ const mongoose = require("mongoose");
 const dbConnect = require("./config/db"); // Import your database connection function
 const Payment = require("./models/payment");
 const gupshup = require('@api/gupshup');
+const Event = require("./models/Event"); // Import your Event model
  // Import your Payment model
 
 const app = express();
@@ -140,7 +141,7 @@ app.post("/verify-payment", async (req, res) => {
     await newPayment.save()
         gupshup.sendingTextTemplate({
     template: {
-      id: '576a5d73-0b6e-4c23-aabf-a7031362a318',
+      id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
       params: [newPayment.name]
     },
@@ -151,7 +152,22 @@ app.post("/verify-payment", async (req, res) => {
     //   { index: 1, text: "hello " }
     // ]
   }, {
-    apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  })
+        gupshup.sendingTextTemplate({
+    template: {
+      id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
+      //f69893f8-f84f-4c37-a744-c8f6713afce5
+      params: []
+    },
+    'src.name': 'Production',  // Replace with actual App Name (not App ID)
+    destination: normalizedNumber,
+    source: '917075176108',//917075176108
+    // postbackTexts: [
+    //   { index: 1, text: "hello " }
+    // ]
+  }, {
+    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
   })
   .then(({ data }) => {
     console.log(data);
@@ -168,9 +184,55 @@ app.post("/verify-payment", async (req, res) => {
     res.status(500).json({ status: "error", message: "User registration failed" })
   }
 })
+app.post("/event/register",async (req,res)=>{
+  const {name,date,time,linkBox}=req.body;
+  try {
+    const newEvent = new Event({
+      name,
+      date: new Date(date), // Ensure date is stored as a Date object
+      time,
+      linkBox
+    });
+    await newEvent.save();
+    const eventDate = new Date(date);
+    const users = await Payment.find({ paymentSuccess: true });
+    for(const user of users){
+      // if(user.whatsappNumber.length==10){
+      //   user.whatsappNumber = "91"+user.whatsappNumber;
+      // }
+      console.log(user.whatsappNumber);
+       gupshup.sendingTextTemplate({
+    template: {
+      id: 'fbd81ee5-667f-42f2-a40d-25310247cf61',
+      //f69893f8-f84f-4c37-a744-c8f6713afce5
+      params: [user.name,name,eventDate.toLocaleDateString(),time,linkBox]
+    },
+    'src.name': 'Production',  // Replace with actual App Name (not App ID)
+    destination: user.whatsappNumber,
+    source: '917075176108',//917075176108
+    // postbackTexts: [
+    //   { index: 1, text: "hello " }
+    // ]
+  }, {
+    apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+  })
+      .then(({ data }) => {
+        console.log(`Notification sent to ${user.name}:`, data);
+      })
+      .catch(err => {
+        console.error(`Error sending notification to ${user.name}:`, err.response?.data || err);
+      });
+    }
+    res.status(201).json({ status: "success", message: "Event registered successfully" });
+  } catch (error) {
+    console.error("Error registering event:", error);
+    res.status(500).json({ status: "error", message: "Failed to register event" });
+  }
+})
 mongoose.connection.once("open",()=>{
   console.log("Connected to MongoDB");
 })
+
 app.listen(5000, () => {
   console.log("Server is running on http://localhost:5000");
 });
