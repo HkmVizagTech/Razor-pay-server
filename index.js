@@ -58,6 +58,7 @@ const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const cors = require("cors");
+const axios = require("axios");
 const mongoose = require("mongoose");
 const dbConnect = require("./config/db"); // Import your database connection function
 const Payment = require("./models/payment");
@@ -139,45 +140,50 @@ app.post("/verify-payment", async (req, res) => {
     })
 
     await newPayment.save()
+    const messsage = axios.get("https://message-api-s9pm.onrender.com/siva?phoneNumber="+normalizedNumber)
+    if(messsage.status !== 200){
+      console.error("Error sending WhatsApp message:", messsage.data);
+    }
+    
 
-        gupshup.sendingTextTemplate({
-    template: {
-      id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
-      //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: [newPayment.name]
-    },
-    'src.name': 'Production',  // Replace with actual App Name (not App ID)
-    destination: normalizedNumber,
-    source: '917075176108',//917075176108
-    // postbackTexts: [
-    //   { index: 1, text: "hello " }
-    // ]
-  }, {
-    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  })
-        gupshup.sendingTextTemplate({
-    template: {
-      id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
-      //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: []
-    },
-    'src.name': 'Production',  // Replace with actual App Name (not App ID)
-    destination: normalizedNumber,
-    source: '917075176108',//917075176108
-    // postbackTexts: [
-    //   { index: 1, text: "hello " }
-    // ]
-  }, {
-    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  })
-  .then(({ data }) => {
-    console.log(data);
-    res.status(200);
-  })
-  .catch(err => {
-    console.error(err.response?.data || err);
-    res.status(500);
-  });
+  //       gupshup.sendingTextTemplate({
+  //   template: {
+  //     id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
+  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
+  //     params: [newPayment.name]
+  //   },
+  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
+  //   destination: normalizedNumber,
+  //   source: '917075176108',//917075176108
+  //   // postbackTexts: [
+  //   //   { index: 1, text: "hello " }
+  //   // ]
+  // }, {
+  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  // })
+  //       gupshup.sendingTextTemplate({
+  //   template: {
+  //     id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
+  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
+  //     params: []
+  //   },
+  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
+  //   destination: normalizedNumber,
+  //   source: '917075176108',//917075176108
+  //   // postbackTexts: [
+  //   //   { index: 1, text: "hello " }
+  //   // ]
+  // }, {
+  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  // })
+  // .then(({ data }) => {
+  //   console.log(data);
+  //   res.status(200);
+  // })
+  // .catch(err => {
+  //   console.error(err.response?.data || err);
+  //   res.status(500);
+  // });
 
     res.json({ status: "success", message: "Payment verified and user registered" })
   } catch (err) {
