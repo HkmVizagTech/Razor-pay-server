@@ -201,7 +201,22 @@ const messageString = JSON.stringify(textMessageContent);
 // *** The crucial change from previous responses remains:
 // *** Combine all parameters (including apikey) into a single object
 gupshup.postWaApiV1Msg({
-  message: messageString,
+  message: `{
+  "type": "text",
+  "previewUrl": "false", // Set to true if you want URL previews
+  "text": "Hare Krishna ${formData.name}! 🙏
+Thank you for registering for our Online Bhagavad-gita Workshop, hosted by the Hare Krishna Movement Vizag. We are honored to be part of your spiritual journey. 🕉️✨
+Through the Bhagavad-gita As It Is by Srila Prabhupada, we will explore the timeless wisdom of Lord Krishna together. 📖
+
+Here’s what to expect:
+🔹 You will receive the meeting link before each session
+🔹 All important updates will be shared in our official WhatsApp group
+🔹 Bonus spiritual content and guidance will be shared to support your practice 🌿
+
+📲 Join the WhatsApp Group here
+Gita Pathashala - HKM Vizag
+https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2"
+}`,
   source: 917075176108,
   destination: 919392952946, // Replace with the actual destination number if it's dynamic
   'src.name': 'Prodution', // Ensure this matches your actual source name in Gupshup
