@@ -140,100 +140,43 @@ app.post("/verify-payment", async (req, res) => {
 
     await newPayment.save()
 
-  //       gupshup.sendingTextTemplate({
-  //   template: {
-  //     id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
-  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
-  //     params: [newPayment.name]
-  //   },
-  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
-  //   destination: normalizedNumber,
-  //   source: '917075176108',//917075176108
-  //   // postbackTexts: [
-  //   //   { index: 1, text: "hello " }
-  //   // ]
-  // }, {
-  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  // })
-  //       gupshup.sendingTextTemplate({
-  //   template: {
-  //     id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
-  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
-  //     params: []
-  //   },
-  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
-  //   destination: normalizedNumber,
-  //   source: '917075176108',//917075176108
-  //   // postbackTexts: [
-  //   //   { index: 1, text: "hello " }
-  //   // ]
-  // }, {
-  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  // })
-  // .then(({ data }) => {
-  //   console.log(data);
-  //   res.status(200);
-  // })
-  // .catch(err => {
-  //   console.error(err.response?.data || err);
-  //   res.status(500);
-  // });
-const textMessageContent = {
-  type: "text",
-  previewUrl: false, // Set to true if you want URL previews
-  text: `Hare Krishna ${formData.name}! 🙏
-Thank you for registering for our Online Bhagavad-gita Workshop, hosted by the Hare Krishna Movement Vizag. We are honored to be part of your spiritual journey. 🕉️✨
-Through the Bhagavad-gita As It Is by Srila Prabhupada, we will explore the timeless wisdom of Lord Krishna together. 📖
-
-Here’s what to expect:
-🔹 You will receive the meeting link before each session
-🔹 All important updates will be shared in our official WhatsApp group
-🔹 Bonus spiritual content and guidance will be shared to support your practice 🌿
-
-📲 Join the WhatsApp Group here
-Gita Pathashala - HKM Vizag
-https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2`
-};
-
-// Stringify the message content for the 'message' field
-const messageString = JSON.stringify(textMessageContent);
-
-// *** The crucial change from previous responses remains:
-// *** Combine all parameters (including apikey) into a single object
-gupshup.postWaApiV1Msg({
-  message: `{
-  "type": "text",
-  "previewUrl": "false", // Set to true if you want URL previews
-  "text": "Hare Krishna ${formData.name}! 🙏
-Thank you for registering for our Online Bhagavad-gita Workshop, hosted by the Hare Krishna Movement Vizag. We are honored to be part of your spiritual journey. 🕉️✨
-Through the Bhagavad-gita As It Is by Srila Prabhupada, we will explore the timeless wisdom of Lord Krishna together. 📖
-
-Here’s what to expect:
-🔹 You will receive the meeting link before each session
-🔹 All important updates will be shared in our official WhatsApp group
-🔹 Bonus spiritual content and guidance will be shared to support your practice 🌿
-
-📲 Join the WhatsApp Group here
-Gita Pathashala - HKM Vizag
-https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2"
-}`,
-  source: 917075176108,
-  destination: 919392952946, // Replace with the actual destination number if it's dynamic
-  'src.name': 'Prodution', // Ensure this matches your actual source name in Gupshup
-  apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38' // apikey moved into the main object
-})
-  .then(({ data }) => console.log('Gupshup API Response:', data))
+        gupshup.sendingTextTemplate({
+    template: {
+      id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
+      //f69893f8-f84f-4c37-a744-c8f6713afce5
+      params: [newPayment.name]
+    },
+    'src.name': 'Production',  // Replace with actual App Name (not App ID)
+    destination: normalizedNumber,
+    source: '917075176108',//917075176108
+    // postbackTexts: [
+    //   { index: 1, text: "hello " }
+    // ]
+  }, {
+    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  })
+        gupshup.sendingTextTemplate({
+    template: {
+      id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
+      //f69893f8-f84f-4c37-a744-c8f6713afce5
+      params: []
+    },
+    'src.name': 'Production',  // Replace with actual App Name (not App ID)
+    destination: normalizedNumber,
+    source: '917075176108',//917075176108
+    // postbackTexts: [
+    //   { index: 1, text: "hello " }
+    // ]
+  }, {
+    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  })
+  .then(({ data }) => {
+    console.log(data);
+    res.status(200);
+  })
   .catch(err => {
-    console.error('Error sending message to Gupshup:', err);
-    if (err.response) {
-      console.error('Error Status:', err.response.status);
-      console.error('Error Data:', err.response.data);
-      console.error('Error Headers:', err.response.headers);
-    } else if (err.request) {
-      console.error('No response received:', err.request);
-    } else {
-      console.error('Error message:', err.message);
-    }
+    console.error(err.response?.data || err);
+    res.status(500);
   });
 
     res.json({ status: "success", message: "Payment verified and user registered" })
