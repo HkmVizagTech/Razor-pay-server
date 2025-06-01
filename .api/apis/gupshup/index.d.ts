@@ -1,5 +1,5 @@
 import type * as types from './types';
-import type { ConfigOptions, FetchResponse, HTTPMethodRange } from 'api/dist/core';
+import type { ConfigOptions, FetchResponse } from 'api/dist/core';
 import Oas from 'oas';
 import APICore from 'api/dist/core';
 declare class SDK {
@@ -56,7 +56,14 @@ declare class SDK {
      * @param variables An object of variables to replace into the server URL.
      */
     server(url: string, variables?: {}): void;
-    postMsg(body: types.PostMsgFormDataParam, metadata: types.PostMsgMetadataParam): Promise<FetchResponse<HTTPMethodRange<200, 299>, types.PostMsgResponse2XX>>;
+    /**
+     * Send text message
+     *
+     * @throws FetchError<400, types.PostWaApiV1MsgResponse400> Bad Request
+     * @throws FetchError<401, types.PostWaApiV1MsgResponse401> Authentication Failed
+     * @throws FetchError<429, types.PostWaApiV1MsgResponse429> Too Many Requests
+     */
+    postWaApiV1Msg(body: types.PostWaApiV1MsgFormDataParam, metadata: types.PostWaApiV1MsgMetadataParam): Promise<FetchResponse<200, types.PostWaApiV1MsgResponse200>>;
 }
 declare const createSDK: SDK;
 export = createSDK;

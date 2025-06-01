@@ -139,55 +139,89 @@ app.post("/verify-payment", async (req, res) => {
     })
 
     await newPayment.save()
-    gupshup.postMsg({
-  message: '{"type":"text","text":"Hare krishna! Your payment has been successfully verified. Thank you for your support!"}',
-  channel: 'whatsapp',
+
+  //       gupshup.sendingTextTemplate({
+  //   template: {
+  //     id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
+  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
+  //     params: [newPayment.name]
+  //   },
+  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
+  //   destination: normalizedNumber,
+  //   source: '917075176108',//917075176108
+  //   // postbackTexts: [
+  //   //   { index: 1, text: "hello " }
+  //   // ]
+  // }, {
+  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  // })
+  //       gupshup.sendingTextTemplate({
+  //   template: {
+  //     id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
+  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
+  //     params: []
+  //   },
+  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
+  //   destination: normalizedNumber,
+  //   source: '917075176108',//917075176108
+  //   // postbackTexts: [
+  //   //   { index: 1, text: "hello " }
+  //   // ]
+  // }, {
+  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  // })
+  // .then(({ data }) => {
+  //   console.log(data);
+  //   res.status(200);
+  // })
+  // .catch(err => {
+  //   console.error(err.response?.data || err);
+  //   res.status(500);
+  // });
+const textMessageContent = {
+  type: "text",
+  previewUrl: false, // Set to true if you want URL previews
+  text: `Hare Krishna ${formData.name}! 🙏
+Thank you for registering for our Online Bhagavad-gita Workshop, hosted by the Hare Krishna Movement Vizag. We are honored to be part of your spiritual journey. 🕉️✨
+Through the Bhagavad-gita As It Is by Srila Prabhupada, we will explore the timeless wisdom of Lord Krishna together. 📖
+
+Here’s what to expect:
+🔹 You will receive the meeting link before each session
+🔹 All important updates will be shared in our official WhatsApp group
+🔹 Bonus spiritual content and guidance will be shared to support your practice 🌿
+
+📲 Join the WhatsApp Group here
+Gita Pathashala - HKM Vizag
+https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2`
+};
+
+// Stringify the message content for the 'message' field
+const messageString = JSON.stringify(textMessageContent);
+
+gupshup.postWaApiV1Msg({
+  message: messageString, // Use the stringified message here
   source: 917075176108,
-  destination: normalizedNumber,
-  'src.name': 'Production',
-  disablePreview: false
+  destination: 919392952946,
+  'src.name': 'Prodution' // Ensure this matches your actual source name in Gupshup
 }, {
-  apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+  apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38' // Make sure this is your production API key
 })
-  .then(({ data }) => console.log(data))
-  .catch(err => console.error(err));
-        gupshup.sendingTextTemplate({
-    template: {
-      id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
-      //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: [newPayment.name]
-    },
-    'src.name': 'Production',  // Replace with actual App Name (not App ID)
-    destination: normalizedNumber,
-    source: '917075176108',//917075176108
-    // postbackTexts: [
-    //   { index: 1, text: "hello " }
-    // ]
-  }, {
-    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  })
-        gupshup.sendingTextTemplate({
-    template: {
-      id: '21e27d1e-1e53-4e01-868b-fa107d7b4516',
-      //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: []
-    },
-    'src.name': 'Production',  // Replace with actual App Name (not App ID)
-    destination: normalizedNumber,
-    source: '917075176108',//917075176108
-    // postbackTexts: [
-    //   { index: 1, text: "hello " }
-    // ]
-  }, {
-    apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  })
-  .then(({ data }) => {
-    console.log(data);
-    res.status(200);
-  })
+  .then(({ data }) => console.log('Gupshup API Response:', data))
   .catch(err => {
-    console.error(err.response?.data || err);
-    res.status(500);
+    console.error('Error sending message to Gupshup:', err);
+    if (err.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error Status:', err.response.status);
+      console.error('Error Data:', err.response.data);
+      console.error('Error Headers:', err.response.headers);
+    } else if (err.request) {
+      // The request was made but no response was received
+      console.error('No response received:', err.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error message:', err.message);
+    }
   });
 
     res.json({ status: "success", message: "Payment verified and user registered" })
