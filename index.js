@@ -139,6 +139,18 @@ app.post("/verify-payment", async (req, res) => {
     })
 
     await newPayment.save()
+    gupshup.postMsg({
+  message: '{"type":"text","text":"Hare krishna! Your payment has been successfully verified. Thank you for your support!"}',
+  channel: 'whatsapp',
+  source: 917075176108,
+  destination: normalizedNumber,
+  'src.name': 'Production',
+  disablePreview: false
+}, {
+  apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+})
+  .then(({ data }) => console.log(data))
+  .catch(err => console.error(err));
         gupshup.sendingTextTemplate({
     template: {
       id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
@@ -207,7 +219,7 @@ app.post("/event/register",async (req,res)=>{
       //f69893f8-f84f-4c37-a744-c8f6713afce5
       params: [user.name,name,eventDate.toLocaleDateString(),time,linkBox]
     },
-    'src.name': 'Production',  // Replace with actual App Name (not App ID)
+    'src.name': '4KoeJVChI420QyWVhAW1kE7L',  // Replace with actual App Name (not App ID)
     destination: user.whatsappNumber,
     source: '917075176108',//917075176108
     // postbackTexts: [
