@@ -1,5 +1,5 @@
 import type * as types from './types';
-import type { ConfigOptions, FetchResponse } from 'api/dist/core';
+import type { ConfigOptions, FetchResponse, HTTPMethodRange } from 'api/dist/core';
 import Oas from 'oas';
 import APICore from 'api/dist/core';
 declare class SDK {
@@ -56,11 +56,7 @@ declare class SDK {
      * @param variables An object of variables to replace into the server URL.
      */
     server(url: string, variables?: {}): void;
-    /**
-     * @throws FetchError<400, types.SendingTextTemplateResponse400> Error response; in case of bad request
-     * @throws FetchError<401, types.SendingTextTemplateResponse401> Error response; in case of authentication failure
-     */
-    sendingTextTemplate(body: types.SendingTextTemplateFormDataParam, metadata: types.SendingTextTemplateMetadataParam): Promise<FetchResponse<202, types.SendingTextTemplateResponse202>>;
+    postMsg(body: types.PostMsgFormDataParam, metadata: types.PostMsgMetadataParam): Promise<FetchResponse<HTTPMethodRange<200, 299>, types.PostMsgResponse2XX>>;
 }
 declare const createSDK: SDK;
 export = createSDK;

@@ -8,7 +8,7 @@ var openapi_json_1 = __importDefault(require("./openapi.json"));
 var SDK = /** @class */ (function () {
     function SDK() {
         this.spec = oas_1.default.init(openapi_json_1.default);
-        this.core = new core_1.default(this.spec, 'gupshup/1.0 (api/6.1.3)');
+        this.core = new core_1.default(this.spec, 'gupshup/2.0 (api/6.1.3)');
     }
     /**
      * Optionally configure various options that the SDK allows.
@@ -73,12 +73,8 @@ var SDK = /** @class */ (function () {
         if (variables === void 0) { variables = {}; }
         this.core.setServer(url, variables);
     };
-    /**
-     * @throws FetchError<400, types.SendingTextTemplateResponse400> Error response; in case of bad request
-     * @throws FetchError<401, types.SendingTextTemplateResponse401> Error response; in case of authentication failure
-     */
-    SDK.prototype.sendingTextTemplate = function (body, metadata) {
-        return this.core.fetch('/wa/api/v1/template/msg', 'post', body, metadata);
+    SDK.prototype.postMsg = function (body, metadata) {
+        return this.core.fetch('/msg', 'post', body, metadata);
     };
     return SDK;
 }());
