@@ -198,28 +198,25 @@ https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2`
 // Stringify the message content for the 'message' field
 const messageString = JSON.stringify(textMessageContent);
 
+// *** The crucial change from previous responses remains:
+// *** Combine all parameters (including apikey) into a single object
 gupshup.postWaApiV1Msg({
-  message: messageString, // Use the stringified message here
+  message: messageString,
   source: 917075176108,
-  destination: 919392952946,
-  'src.name': 'Prodution' // Ensure this matches your actual source name in Gupshup
-}, {
-  apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38' // Make sure this is your production API key
+  destination: 919392952946, // Replace with the actual destination number if it's dynamic
+  'src.name': 'Prodution', // Ensure this matches your actual source name in Gupshup
+  apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38' // apikey moved into the main object
 })
   .then(({ data }) => console.log('Gupshup API Response:', data))
   .catch(err => {
     console.error('Error sending message to Gupshup:', err);
     if (err.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       console.error('Error Status:', err.response.status);
       console.error('Error Data:', err.response.data);
       console.error('Error Headers:', err.response.headers);
     } else if (err.request) {
-      // The request was made but no response was received
       console.error('No response received:', err.request);
     } else {
-      // Something happened in setting up the request that triggered an Error
       console.error('Error message:', err.message);
     }
   });
