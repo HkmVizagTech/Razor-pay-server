@@ -1,52 +1,65 @@
-declare const PostWaApiV1Msg: {
+declare const SendingTextTemplate: {
     readonly formData: {
         readonly type: "object";
-        readonly required: readonly ["source", "destination", "src.name", "message"];
+        readonly required: readonly ["source", "destination", "template"];
         readonly properties: {
             readonly source: {
-                readonly type: "integer";
-                readonly description: "Source Phone Number";
-                readonly examples: readonly ["918929874278"];
-            };
-            readonly destination: {
-                readonly type: "integer";
-                readonly description: "Destination Phone Number";
-                readonly examples: readonly ["918805162043"];
+                readonly type: "string";
+                readonly description: "Sender Whatsapp Number";
+                readonly examples: readonly ["919163xxxxx3"];
             };
             readonly "src.name": {
                 readonly type: "string";
-                readonly description: "App Name";
-                readonly examples: readonly ["august18"];
+                readonly description: "App name that the source number belongs to";
+                readonly examples: readonly ["DemoApp"];
             };
-            readonly message: {
-                readonly title: "Text message";
+            readonly destination: {
+                readonly type: "string";
+                readonly description: "Receiver Whatsapp Number";
+                readonly examples: readonly ["917839xxxxx3"];
+            };
+            readonly template: {
                 readonly type: "object";
+                readonly description: "contains template id and list of template parameters";
                 readonly properties: {
-                    readonly context: {
-                        readonly type: "object";
-                        readonly properties: {
-                            readonly msgId: {
-                                readonly type: "string";
-                            };
+                    readonly id: {
+                        readonly type: "string";
+                        readonly description: "Template ID";
+                        readonly examples: readonly ["template_id"];
+                    };
+                    readonly params: {
+                        readonly type: "array";
+                        readonly description: "List of template parameters";
+                        readonly items: {
+                            readonly type: "string";
                         };
-                    };
-                    readonly text: {
-                        readonly type: "string";
-                        readonly default: "Welcome to Gupshup";
-                        readonly description: "Message text";
-                    };
-                    readonly type: {
-                        readonly default: "text";
-                        readonly type: "string";
-                        readonly description: "Type of session message";
-                    };
-                    readonly previewUrl: {
-                        readonly default: false;
-                        readonly type: "boolean";
-                        readonly description: "Enable preview if the text contains URL";
+                        readonly examples: readonly ["hi"];
                     };
                 };
-                readonly required: readonly ["text"];
+            };
+            readonly postbackTexts: {
+                readonly type: "array";
+                readonly description: "list of objects containing postback text details; include if postback text support required for quick-reply buttons";
+                readonly items: {
+                    readonly type: "object";
+                    readonly properties: {
+                        readonly index: {
+                            readonly type: "integer";
+                            readonly description: "button index (0-based)";
+                            readonly examples: readonly [0];
+                        };
+                        readonly text: {
+                            readonly type: "string";
+                            readonly description: "postback text for the button";
+                            readonly examples: readonly ["hello"];
+                        };
+                    };
+                };
+            };
+            readonly channel: {
+                readonly type: "string";
+                readonly description: "Messaging Platform Name";
+                readonly examples: readonly ["whatsapp"];
             };
         };
         readonly $schema: "http://json-schema.org/draft-04/schema#";
@@ -57,57 +70,45 @@ declare const PostWaApiV1Msg: {
             readonly properties: {
                 readonly apikey: {
                     readonly type: "string";
-                    readonly examples: readonly ["61b3021c97214370b341f8baaae0xxxx"];
+                    readonly examples: readonly ["2xxc4x4xx2c94xxxc2f9xx9d43xxxx8a"];
                     readonly $schema: "http://json-schema.org/draft-04/schema#";
-                    readonly description: "APIKEY of your Gupshup Account";
+                    readonly description: "Your account API key";
                 };
             };
             readonly required: readonly ["apikey"];
         }];
     };
     readonly response: {
-        readonly "200": {
+        readonly "202": {
             readonly type: "object";
             readonly properties: {
-                readonly status: {
-                    readonly type: "string";
-                    readonly examples: readonly ["submitted"];
-                };
                 readonly messageId: {
                     readonly type: "string";
-                    readonly examples: readonly ["183dc8f1-7ecc-4419-895f-04fd0b1bfe07"];
+                    readonly description: "message id for the template message sent";
+                    readonly examples: readonly ["message id"];
+                };
+                readonly status: {
+                    readonly type: "string";
+                    readonly description: "Status of the response\n\n`success`";
+                    readonly enum: readonly ["success"];
                 };
             };
             readonly $schema: "http://json-schema.org/draft-04/schema#";
         };
         readonly "400": {
-            readonly anyOf: readonly [{
-                readonly title: "Invalid Destination";
-                readonly type: "object";
-                readonly properties: {
-                    readonly message: {
-                        readonly type: "string";
-                        readonly examples: readonly ["Invalid Destination"];
-                    };
-                    readonly status: {
-                        readonly type: "string";
-                        readonly examples: readonly ["error"];
-                    };
+            readonly type: "object";
+            readonly properties: {
+                readonly message: {
+                    readonly type: "string";
+                    readonly description: "error message";
+                    readonly examples: readonly ["Invalid Destination"];
                 };
-            }, {
-                readonly title: "Invalid App details";
-                readonly type: "object";
-                readonly properties: {
-                    readonly message: {
-                        readonly type: "string";
-                        readonly examples: readonly ["Invalid App Details"];
-                    };
-                    readonly status: {
-                        readonly type: "string";
-                        readonly examples: readonly ["error"];
-                    };
+                readonly status: {
+                    readonly type: "string";
+                    readonly description: "Status of the response\n\n`error`";
+                    readonly enum: readonly ["error"];
                 };
-            }];
+            };
             readonly $schema: "http://json-schema.org/draft-04/schema#";
         };
         readonly "401": {
@@ -115,29 +116,17 @@ declare const PostWaApiV1Msg: {
             readonly properties: {
                 readonly message: {
                     readonly type: "string";
+                    readonly description: "error message";
                     readonly examples: readonly ["Authentication Failed"];
                 };
                 readonly status: {
                     readonly type: "string";
-                    readonly examples: readonly ["error"];
-                };
-            };
-            readonly $schema: "http://json-schema.org/draft-04/schema#";
-        };
-        readonly "429": {
-            readonly type: "object";
-            readonly properties: {
-                readonly message: {
-                    readonly type: "string";
-                    readonly examples: readonly ["Too Many Requests"];
-                };
-                readonly status: {
-                    readonly type: "string";
-                    readonly examples: readonly ["error"];
+                    readonly description: "Status of the response\n\n`error`";
+                    readonly enum: readonly ["error"];
                 };
             };
             readonly $schema: "http://json-schema.org/draft-04/schema#";
         };
     };
 };
-export { PostWaApiV1Msg };
+export { SendingTextTemplate };

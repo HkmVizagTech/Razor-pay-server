@@ -146,28 +146,13 @@ app.post("/verify-payment", async (req, res) => {
     // }
     
 
-  //       gupshup.sendingTextTemplate({
-  //   template: {
-  //     id: 'cb7c7f4d-0bd3-4719-b881-ac82c2626946',
-  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
-  //     params: [newPayment.name]
-  //   },
-  //   'src.name': 'Production',  // Replace with actual App Name (not App ID)
-  //   destination: normalizedNumber,
-  //   source: '917075176108',//917075176108
-  //   // postbackTexts: [
-  //   //   { index: 1, text: "hello " }
-  //   // ]
-  // }, {
-  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
-  // })
         gupshup.sendingTextTemplate({
     template: {
       id: '3439dc99-4784-4733-9038-f810b98df077',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
       params: [newPayment.name,"https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2"]
     },
-    'src.name': '4KoeJVChI420QyWVhAW1kE7L',  // Replace with actual App Name (not App ID)
+    'src.name': 'Production',  // Replace with actual App Name (not App ID)
     destination: normalizedNumber,
     source: '917075176108',//917075176108
     // postbackTexts: [
@@ -177,13 +162,48 @@ app.post("/verify-payment", async (req, res) => {
     apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
   })
   .then(({ data }) => {
-    console.log(data);
+    console.log("WhatsApp message sent successfully:", data);
     res.status(200);
+    // res.status(200).json({ status: "success", message: "Payment verified and user registered" });
   })
-  .catch(err => {
-    console.error(err.response?.data || err);
-    res.status(500);
-  });
+  .catch(err =>{
+    console.error("Error sending WhatsApp message:", err.response?.data || err);
+    res.status(500).json({ status: "error", message: "Failed to send WhatsApp message" });
+  })
+  // gupshup.sendingTextTemplate({
+  //   template: {
+  //     id: '3439dc99-4784-4733-9038-f810b98df077',
+  //     //f69893f8-f84f-4c37-a744-c8f6713afce5
+  //     params: [newPayment.name,"https://chat.whatsapp.com/BgKZOANIvI0JSuBWStpyf2"]
+  //   },
+  //   'src.name': '4KoeJVChI420QyWVhAW1kE7L',  // Replace with actual App Name (not App ID)
+  //   destination: normalizedNumber,
+  //   source: '917075176108',//917075176108
+  //   // postbackTexts: [
+  //   //   { index: 1, text: "hello " }
+  //   // ]
+  // }, {
+  //   apikey:'zbut4tsg1ouor2jks4umy1d92salxm38'
+  // })
+  // .then(({ data }) => {
+  //   console.log(data);
+  //   res.status(200);
+  // })
+  // .catch(err => {
+  //   console.error(err.response?.data || err);
+  //   res.status(500);
+  // });
+//   gupshup.sendingTextTemplate({
+//   template: {"id":"3439dc99-4784-4733-9038-f810b98df077","params":[`${formdata.name}`,"https://llasjkjkjjksd.com"]},
+//   source: '917075176108',
+//   'src.name': 'Production',
+//   destination: '919542458131',
+//   channel: 'whatsapp'
+// }, {
+//   apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+// })
+//   .then(({ data }) => console.log(data))
+//   .catch(err => console.error(err));
 
     res.json({ status: "success", message: "Payment verified and user registered" })
   } catch (err) {

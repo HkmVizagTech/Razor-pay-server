@@ -57,13 +57,10 @@ declare class SDK {
      */
     server(url: string, variables?: {}): void;
     /**
-     * Send text message
-     *
-     * @throws FetchError<400, types.PostWaApiV1MsgResponse400> Bad Request
-     * @throws FetchError<401, types.PostWaApiV1MsgResponse401> Authentication Failed
-     * @throws FetchError<429, types.PostWaApiV1MsgResponse429> Too Many Requests
+     * @throws FetchError<400, types.SendingTextTemplateResponse400> Error response; in case of bad request
+     * @throws FetchError<401, types.SendingTextTemplateResponse401> Error response; in case of authentication failure
      */
-    postWaApiV1Msg(body: types.PostWaApiV1MsgFormDataParam, metadata: types.PostWaApiV1MsgMetadataParam): Promise<FetchResponse<200, types.PostWaApiV1MsgResponse200>>;
+    sendingTextTemplate(body: types.SendingTextTemplateFormDataParam, metadata: types.SendingTextTemplateMetadataParam): Promise<FetchResponse<202, types.SendingTextTemplateResponse202>>;
 }
 declare const createSDK: SDK;
 export = createSDK;
