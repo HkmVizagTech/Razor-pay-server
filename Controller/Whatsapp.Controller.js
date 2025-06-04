@@ -66,7 +66,7 @@ const register = async (req, res) => {
     console.log(normalizedNumber, participant);
     gupshup.sendingTextTemplate({
     template: {
-      id: '8204f1d7-1656-4ca2-affa-86ddfa47a2a5',
+      id: '7ea14ae9-eb85-46e8-ba1f-a19164e5c16f',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
       params: [name, selectedBook,'📲 Join our WhatsApp group here:',group,link]
     },
