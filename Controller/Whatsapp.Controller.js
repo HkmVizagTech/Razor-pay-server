@@ -60,7 +60,7 @@ const register = async (req, res) => {
       group="Hare Krishna Youth Empowerment";
       link="https://chat.whatsapp.com/FSNDhhNqGEBFV2H7KPwRp8"
     }else{
-      group="Hare Krishna Visakhapatnam "
+      group="Hare Krishna Visakhapatnam"
       link="https://chat.whatsapp.com/DcoWJuJSY5e30WUX16X4ua"
     }
     console.log(normalizedNumber, participant);
@@ -68,7 +68,7 @@ const register = async (req, res) => {
     template: {
       id: '8204f1d7-1656-4ca2-affa-86ddfa47a2a5',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: [name, selectedBook,'Join WhatsGroup here',group,link]
+      params: [name, selectedBook,'📲 Join our WhatsApp group here:',group,link]
     },
     'src.name': 'Production',  // Replace with actual App Name (not App ID)
     destination: normalizedNumber,
