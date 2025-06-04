@@ -53,7 +53,7 @@
 // const PORT = process.env.PORT || 5000;
 // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 require("dotenv").config(); // Load .env
-
+const bcrypt=require("bcryptjs");
 const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
@@ -63,8 +63,14 @@ const mongoose = require("mongoose");
 const dbConnect = require("./config/db"); // Import your database connection function
 const Payment = require("./models/payment");
 const gupshup = require('@api/gupshup');
-const Event = require("./models/Event"); // Import your Event model
+const Event = require("./models/Event");
+const cron =require('node-cron'); // Import your Event model
+const Admin = require("./models/Admin");
+const jwt = require("jsonwebtoken"); 
+const whatsapp=require('./Routes/WhatsApp.routes')// Import JWT for authentication
  // Import your Payment model
+ const BookEvent =require("./models/Event1")
+ const GitaSessionParticipant=require('./models/Admin.Session.model') 
 
 const app = express();
 app.use(cors({
@@ -78,6 +84,7 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 dbConnect();
+app.use('/book',whatsapp);
 // Route to create order
 app.post("/create-order", async (req, res) => {
   console.log(process.env.RAZORPAY_KEY_ID, process.env.RAZORPAY_KEY_SECRET);
@@ -256,10 +263,228 @@ app.post("/event/register",async (req,res)=>{
     res.status(500).json({ status: "error", message: "Failed to register event" });
   }
 })
+app.get("/users", async (req, res) => {
+  try {
+    const users = await Payment.find({ paymentSuccess: true });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch users" });
+  }
+});
+app.get("/events", async (req, res) => {
+  try {
+    const events = await Event.find().sort({ date: 1 }); // Sort by date ascending
+    res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch events" });
+  }
+});
+app.get("/event/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const event = await Event.findById(id);
+    if (!event) {
+      return res.status(404).json({ status: "error", message: "Event not found" });
+    }
+    res.status(200).json(event);
+  } catch (error) {
+    console.error("Error fetching event:", error);
+    res.status(500).json({ status: "error", message: "Failed to fetch event" });
+  }
+}
+);
+app.delete("/event/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const event = await Event.findByIdAndDelete(id);
+    if (!event) {
+      return res.status(404).json({ status: "error", message: "Event not found" });
+    }
+    res.status(200).json({ status: "success", message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    res.status(500).json({ status: "error", message: "Failed to delete event" });
+  }
+});
+app.put("/event/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, date, time, linkBox } = req.body;
+
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(
+      id,
+      { name, date: new Date(date), time, linkBox },
+      { new: true }
+    );
+
+    if (!updatedEvent) {
+      return res.status(404).json({ status: "error", message: "Event not found" });
+    }
+
+    res.status(200).json({ status: "success", message: "Event updated successfully", event: updatedEvent });
+  } catch (error) {
+    console.error("Error updating event:", error);
+    res.status(500).json({ status: "error", message: "Failed to update event" });
+  }
+});
+const getEventDateTime = (event) => {
+  const [hours, minutes] = event.time.split(':').map(Number);
+  const eventDateTime = new Date(event.date);
+  eventDateTime.setHours(hours);
+  eventDateTime.setMinutes(minutes);
+  eventDateTime.setSeconds(0);
+  return eventDateTime;
+};
+
+// Check for reminders
+cron.schedule('* * * * *', async () => {
+  console.log('⏰ Checking for reminders...');
+
+  const now = new Date();
+  const events = await Event.find();
+  console.log(`Found ${events.length} events`);
+
+  events.forEach(event => {
+    const eventTime = getEventDateTime(event);
+    const timeDiff = eventTime - now;
+
+    const reminders = [
+      { label: '1 day before', offset: 24 * 60 * 60 * 1000 },
+      { label: '1 hour before', offset: 60 * 60 * 1000 },
+      { label: '30 minutes before', offset: 30 * 60 * 1000 },
+      { label: '5 minutes before', offset: 5 * 60 * 1000 },
+    ];
+
+    reminders.forEach(({ label, offset }) => {
+      const reminderWindowStart = offset - 60 * 1000; // 1 min window
+      const reminderWindowEnd = offset;
+
+      if (timeDiff <= reminderWindowEnd && timeDiff > reminderWindowStart) {
+        const users = Payment.find({ paymentSuccess: true });
+        users.then(users => {
+          users.forEach(user => {
+            const normalizedNumber = user.whatsappNumber;
+            console.log(`Sending ${label} reminder to ${user.name} (${normalizedNumber}) for event "${event.name}"`);
+            gupshup.sendingTextTemplate({
+              template: {
+                id: 'c2b3766f-c352-4a98-a0be-dcc369b2d8bc',
+                params: [user.name, event.name, event.date.toLocaleDateString(), event.time, event.linkBox]
+              },
+              'src.name': '4KoeJVChI420QyWVhAW1kE7L',
+              destination: normalizedNumber,
+              source: '917075176108',
+            }, {
+              apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+            })
+            .then(({ data }) => {
+              console.log(`Notification sent to ${user.name}:`, data);
+            })
+            .catch(err => {
+              console.error(`Error sending notification to ${user.name}:`, err.response?.data || err);
+            });
+          });
+        }).catch(err => {
+          console.error("Error fetching users:", err);
+        });
+        console.log(`✅ Sent "${label}" reminder for "${event.name}"`);
+      }
+    });
+  });
+});
+
+app.delete("/payment",async (req, res) => {
+  try {
+    const data = await Event.deleteMany({});
+    res.status(200).json({ status: "success", message: "All events deleted successfully",data });
+  } catch (error) {
+    console.error("Error deleting payments:", error);
+    res.status(500).json({ status: "error", message: "Failed to delete payments" });
+  }
+}
+);
 mongoose.connection.once("open",()=>{
   console.log("Connected to MongoDB");
 })
 
 app.listen(5000, () => {
   console.log("Server is running on http://localhost:5000");
+});
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const user = new Admin({ username, password: hashedPassword });
+    await user.save();
+    res.status(201).send("User registered successfully.");
+  } catch (err) {
+    res.status(400).send("Error registering user.");
+  }
+});
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const user = await Admin.findOne({ username });
+  if (!user) return res.status(400).send("Invalid credentials.");
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(400).send("Invalid credentials.");
+  console.log("User logged in",process.env.JWT_SECRET);
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  res.json({ token });
+});
+cron.schedule('* * * * *', async () => {
+  console.log('⏰ Checking Book Events for reminders...');
+
+  const now = new Date();
+  const events = await BookEvent.find();
+  const users = await GitaSessionParticipant.find({ interestedInGitaSession: true }); // or whatever condition
+  console.log(`Found ${events.length} book events`);
+
+  const reminders = [
+    { label: '1 day before', offset: 24 * 60 * 60 * 1000 },
+    { label: '1 hour before', offset: 60 * 60 * 1000 },
+    { label: '30 minutes before', offset: 30 * 60 * 1000 },
+    { label: '5 minutes before', offset: 5 * 60 * 1000 },
+  ];
+
+  for (const event of events) {
+    const timeDiff = new Date(event.eventDate) - now;
+
+    for (const { label, offset } of reminders) {
+      const windowStart = offset - 60 * 1000;
+      const windowEnd = offset;
+
+      if (timeDiff <= windowEnd && timeDiff > windowStart) {
+        console.log(`📢 Sending "${label}" reminder for event "${event.title}"`);
+
+        for (const user of users) {
+          try {
+            await gupshup.sendingTextTemplate({
+              template: {
+                id: 'c2b3766f-c352-4a98-a0be-dcc369b2d8bc',
+                params: [
+                  user.name,
+                  event.title,
+                  new Date(event.eventDate).toLocaleDateString(),
+                  new Date(event.eventDate).toLocaleTimeString(),
+                  event.link
+                ]
+              },
+              'src.name': 'Production',
+              destination: user.whatsappNumber,
+              source: '917075176108',
+            }, {
+              apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+            });
+
+            console.log(`✅ Sent reminder to ${user.name}`);
+          } catch (err) {
+            console.error(`❌ Failed to send to ${user.name}:`, err.response?.data || err);
+          }
+        }
+      }
+    }
+  }
 });
