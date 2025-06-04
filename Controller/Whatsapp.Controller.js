@@ -66,9 +66,9 @@ const register = async (req, res) => {
     console.log(normalizedNumber, participant);
     gupshup.sendingTextTemplate({
     template: {
-      id: '5abc821c-ce55-4d30-839a-343552caf41f',
+      id: '8204f1d7-1656-4ca2-affa-86ddfa47a2a5',
       //f69893f8-f84f-4c37-a744-c8f6713afce5
-      params: [name, selectedBook,group,link]
+      params: [name, selectedBook,'Join WhatsGroup here',group,link]
     },
     'src.name': 'Production',  // Replace with actual App Name (not App ID)
     destination: normalizedNumber,
