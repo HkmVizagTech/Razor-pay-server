@@ -410,7 +410,7 @@ mongoose.connection.once("open",()=>{
   console.log("Connected to MongoDB");
 })
 
-app.listen(5000, () => {
+app.listen(5001, () => {
   console.log("Server is running on http://localhost:5000");
 });
 app.post("/register", async (req, res) => {
