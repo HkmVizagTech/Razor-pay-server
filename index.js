@@ -74,7 +74,9 @@ const whatsapp=require('./Routes/WhatsApp.routes')// Import JWT for authenticati
 
 const app = express();
 app.use(cors({
-  origin: ["http://localhost:3000","https://gita-sparks-git-main-sivabalajieevana-12s-projects.vercel.app","https://gita-sparks.vercel.app","https://session-beryl.vercel.app","https://admin-panel-iota-nine.vercel.app","https://admin-panel-git-main-sivabalajieevana-12s-projects.vercel.app","https://book-distribution-git-main-hkmvizags-projects.vercel.app","https://book-distribution-hkmvizags-projects.vercel.app","https://book-distribution.vercel.app"], // Adjust this to your frontend URL
+  origin: ["http://localhost:3000","https://gita-sparks-git-main-sivabalajieevana-12s-projects.vercel.app","https://gita-sparks.vercel.app","https://session-beryl.vercel.app","https://admin-panel-iota-nine.vercel.app","https://admin-panel-git-main-sivabalajieevana-12s-projects.vercel.app","https://book-distribution-git-main-hkmvizags-projects.vercel.app","https://book-distribution-hkmvizags-projects.vercel.app","https://book-distribution.vercel.app"
+    ,"https://gita-spark-git-main-hkmvizags-projects.vercel.app","https://gita-spark-hkmvizags-projects.vercel.app","https://gita-spark.vercel.app","https://heritage-form-gxoz-git-main-hkmvizags-projects.vercel.app","https://heritage-form-gxoz-hkmvizags-projects.vercel.app","https://heritage-form-gxoz.vercel.app"
+  ], // Adjust this to your frontend URL
   methods: ["GET", "POST","PUT","PATCH","DELETE"],
 }));
 app.use(express.json());
