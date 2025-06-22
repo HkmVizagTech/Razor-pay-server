@@ -480,7 +480,7 @@ cron.schedule('* * * * *', async () => {
               apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
             });
 
-            console.log(`✅ Sent reminder to ${user.name}`);
+            console.log(`✅ successfully Sent reminder to ${user.name}`);
           } catch (err) {
             console.error(`❌ Failed to send to ${user.name}:`, err.response?.data || err);
           }
