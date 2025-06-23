@@ -340,59 +340,62 @@ const getEventDateTime = (event) => {
 };
 
 // Check for reminders
-cron.schedule('* * * * *', async () => {
-  console.log('⏰ Checking for reminders...');
+// cron.schedule('* * * * *', async () => {
+//   console.log('⏰ Checking for reminders...');
 
-  const now = new Date();
-  const events = await Event.find();
-  console.log(`Found ${events.length} events`);
+//   const now = new Date();
+//   const events = await Event.find();
+//   console.log(`Found ${events.length} events`);
 
-  events.forEach(event => {
-    const eventTime = getEventDateTime(event);
-    const timeDiff = eventTime - now;
+//   events.forEach(event => {
+//     const eventTime = getEventDateTime(event);
+//     const timeDiff = eventTime - now;
 
-    const reminders = [
-      { label: '1 day before', offset: 24 * 60 * 60 * 1000 },
-      { label: '1 hour before', offset: 60 * 60 * 1000 },
-      { label: '30 minutes before', offset: 30 * 60 * 1000 },
-      { label: '5 minutes before', offset: 5 * 60 * 1000 },
-    ];
+//     const reminders = [
+//       { label: '1 day before', offset: 24 * 60 * 60 * 1000 },
+//       { label: '1 hour before', offset: 60 * 60 * 1000 },
+//       { label: '30 minutes before', offset: 30 * 60 * 1000 },
+//       { label: '5 minutes before', offset: 5 * 60 * 1000 },
+//     ];
 
-    reminders.forEach(({ label, offset }) => {
-      const reminderWindowStart = offset - 60 * 1000; // 1 min window
-      const reminderWindowEnd = offset;
+//     reminders.forEach(({ label, offset }) => {
+//       const reminderWindowStart = offset - 60 * 1000; // 1 min window
+//       const reminderWindowEnd = offset;
 
-      if (timeDiff <= reminderWindowEnd && timeDiff > reminderWindowStart) {
-        const users = Payment.find({ paymentSuccess: true });
-        users.then(users => {
-          users.forEach(user => {
-            const normalizedNumber = user.whatsappNumber;
-            console.log(`Sending ${label} reminder to ${user.name} (${normalizedNumber}) for event "${event.name}"`);
-            gupshup.sendingTextTemplate({
-              template: {
-                id: 'c2b3766f-c352-4a98-a0be-dcc369b2d8bc',
-                params: [user.name, event.name, event.date.toLocaleDateString(), event.time, event.linkBox]
-              },
-              'src.name': '4KoeJVChI420QyWVhAW1kE7L',
-              destination: normalizedNumber,
-              source: '917075176108',
-            }, {
-              apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
-            })
-            .then(({ data }) => {
-              console.log(`Notification sent to ${user.name}:`, data);
-            })
-            .catch(err => {
-              console.error(`Error sending notification to ${user.name}:`, err.response?.data || err);
-            });
-          });
-        }).catch(err => {
-          console.error("Error fetching users:", err);
-        });
-        console.log(`✅ Sent "${label}" reminder for "${event.name}"`);
-      }
-    });
-  });
+//       if (timeDiff <= reminderWindowEnd && timeDiff > reminderWindowStart) {
+//         const users = Payment.find({ paymentSuccess: true });
+//         users.then(users => {
+//           users.forEach(user => {
+//             const normalizedNumber = user.whatsappNumber;
+//             console.log(`Sending ${label} reminder to ${user.name} (${normalizedNumber}) for event "${event.name}"`);
+//             gupshup.sendingTextTemplate({
+//               template: {
+//                 id: 'c2b3766f-c352-4a98-a0be-dcc369b2d8bc',
+//                 params: [user.name, event.name, event.date.toLocaleDateString(), event.time, event.linkBox]
+//               },
+//               'src.name': '4KoeJVChI420QyWVhAW1kE7L',
+//               destination: normalizedNumber,
+//               source: '917075176108',
+//             }, {
+//               apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+//             })
+//             .then(({ data }) => {
+//               console.log(`Notification sent to ${user.name}:`, data);
+//             })
+//             .catch(err => {
+//               console.error(`Error sending notification to ${user.name}:`, err.response?.data || err);
+//             });
+//           });
+//         }).catch(err => {
+//           console.error("Error fetching users:", err);
+//         });
+//         console.log(`✅ Sent "${label}" reminder for "${event.name}"`);
+//       }
+//     });
+//   });
+// });
+app.get("/", (req, res) => {
+  res.send("Welcome to Razor Server API!");
 });
 
 app.delete("/payment",async (req, res) => {
@@ -410,7 +413,7 @@ mongoose.connection.once("open",()=>{
 })
 
 app.listen(5001, () => {
-  console.log("Server is running on http://localhost:5000");
+  console.log("Server is running on http://localhost:5001");
 });
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
@@ -435,57 +438,57 @@ app.post("/login", async (req, res) => {
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
   res.json({ token });
 });
-cron.schedule('* * * * *', async () => {
-  console.log('⏰ Checking Book Events for reminders...');
+// cron.schedule('* * * * *', async () => {
+//   console.log('⏰ Checking Book Events for reminders...');
 
-  const now = new Date();
-  const events = await BookEvent.find();
-  const users = await GitaSessionParticipant.find({ interestedInGitaSession: true }); // or whatever condition
-  console.log(`Found ${events.length} book events`);
+//   const now = new Date();
+//   const events = await BookEvent.find();
+//   const users = await GitaSessionParticipant.find({ interestedInGitaSession: true }); // or whatever condition
+//   console.log(`Found ${events.length} book events`);
 
-  const reminders = [
-    { label: '1 day before', offset: 24 * 60 * 60 * 1000 },
-    { label: '1 hour before', offset: 60 * 60 * 1000 },
-    { label: '30 minutes before', offset: 30 * 60 * 1000 },
-    { label: '5 minutes before', offset: 5 * 60 * 1000 },
-  ];
+//   const reminders = [
+//     { label: '1 day before', offset: 24 * 60 * 60 * 1000 },
+//     { label: '1 hour before', offset: 60 * 60 * 1000 },
+//     { label: '30 minutes before', offset: 30 * 60 * 1000 },
+//     { label: '5 minutes before', offset: 5 * 60 * 1000 },
+//   ];
 
-  for (const event of events) {
-    const timeDiff = new Date(event.eventDate) - now;
+//   for (const event of events) {
+//     const timeDiff = new Date(event.eventDate) - now;
 
-    for (const { label, offset } of reminders) {
-      const windowStart = offset - 60 * 1000;
-      const windowEnd = offset;
+//     for (const { label, offset } of reminders) {
+//       const windowStart = offset - 60 * 1000;
+//       const windowEnd = offset;
 
-      if (timeDiff <= windowEnd && timeDiff > windowStart) {
-        console.log(`📢 Sending "${label}" reminder for event "${event.title}"`);
+//       if (timeDiff <= windowEnd && timeDiff > windowStart) {
+//         console.log(`📢 Sending "${label}" reminder for event "${event.title}"`);
 
-        for (const user of users) {
-          try {
-            await gupshup.sendingTextTemplate({
-              template: {
-                id: 'c2b3766f-c352-4a98-a0be-dcc369b2d8bc',
-                params: [
-                  user.name,
-                  event.title,
-                  new Date(event.eventDate).toLocaleDateString(),
-                  new Date(event.eventDate).toLocaleTimeString(),
-                  event.link
-                ]
-              },
-              'src.name': 'Production',
-              destination: user.whatsappNumber,
-              source: '917075176108',
-            }, {
-              apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
-            });
+//         for (const user of users) {
+//           try {
+//             await gupshup.sendingTextTemplate({
+//               template: {
+//                 id: 'c2b3766f-c352-4a98-a0be-dcc369b2d8bc',
+//                 params: [
+//                   user.name,
+//                   event.title,
+//                   new Date(event.eventDate).toLocaleDateString(),
+//                   new Date(event.eventDate).toLocaleTimeString(),
+//                   event.link
+//                 ]
+//               },
+//               'src.name': 'Production',
+//               destination: user.whatsappNumber,
+//               source: '917075176108',
+//             }, {
+//               apikey: 'zbut4tsg1ouor2jks4umy1d92salxm38'
+//             });
 
-            console.log(`✅ successfully Sent reminder to ${user.name}`);
-          } catch (err) {
-            console.error(`❌ Failed to send to ${user.name}:`, err.response?.data || err);
-          }
-        }
-      }
-    }
-  }
-});
+//             console.log(`✅ successfully Sent reminder to ${user.name}`);
+//           } catch (err) {
+//             console.error(`❌ Failed to send to ${user.name}:`, err.response?.data || err);
+//           }
+//         }
+//       }
+//     }
+//   }
+// });
